@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { Button, Input, Heading } from '../atoms';
 import { Logo } from '../molecules';
 
-export function LoginPage({ onLogin }) {
-  const [isRegistering, setIsRegistering] = useState(false);
+export function LoginPage({ onLogin, initialMode = 'login', onBack }) {
+  const [isRegistering, setIsRegistering] = useState(initialMode === 'register');
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ export function LoginPage({ onLogin }) {
     }
 
     setLoading(true);
-    const API = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const API = import.meta.env.VITE_API_URL || '';
 
     try {
       if (isRegistering) {
@@ -52,9 +53,11 @@ export function LoginPage({ onLogin }) {
         if (!resp.ok) {
           const err = await resp.json();
           setErrors({ email: err.erro || 'Erro no cadastro' });
+          toast.error(err.erro || 'Erro ao criar conta');
           setLoading(false);
           return;
         }
+        toast.success('Conta criada com sucesso!');
       }
 
       // Login via API
@@ -67,6 +70,7 @@ export function LoginPage({ onLogin }) {
       if (!loginResp.ok) {
         const err = await loginResp.json();
         setErrors({ email: err.erro || 'E-mail ou senha incorretos' });
+        toast.error(err.erro || 'E-mail ou senha incorretos');
         setLoading(false);
         return;
       }
@@ -75,9 +79,11 @@ export function LoginPage({ onLogin }) {
       const userData = { name: usuario.nome || usuario.name, email: usuario.email, id: usuario.id };
       localStorage.setItem('limpaocao_currentUser', JSON.stringify(userData));
       setLoading(false);
-      onLogin(userData);
+      toast.success(isRegistering ? 'Bem-vindo(a) ao LimpAção!' : 'Bem-vindo(a) de volta!');
+      setTimeout(() => onLogin(userData), 300);
     } catch (e) {
       setErrors({ email: 'Erro de conexão' });
+      toast.error('Erro de conexão com o servidor');
       setLoading(false);
     }
   };
@@ -92,6 +98,17 @@ export function LoginPage({ onLogin }) {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-emerald-600 transition-colors"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Voltar
+            </button>
+          )}
           <div className="flex justify-center mb-4">
             <div className="bg-gradient-to-br from-emerald-500 to-green-600 text-white p-4 rounded-2xl shadow-lg">
               <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

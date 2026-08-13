@@ -157,12 +157,16 @@ export function HomePage({ user, onLogout }) {
   };
 
   const handleStatusChange = (report, targetStatus) => {
+    const statusMap = { resolved: 'Concluído', 'in-progress': 'Em andamento', pending: 'Pendente', reopen: 'Reaberto' };
+    const label = statusMap[targetStatus] || targetStatus;
+
     if (targetStatus === 'resolved') {
       updateReport(report.id, {
         ...report,
         previousStatus: report.status,
         status: 'resolved',
       });
+      toast.success(`Report marcado como ${label}!`);
       return;
     }
 
@@ -172,6 +176,7 @@ export function HomePage({ user, onLogout }) {
         status: report.previousStatus || 'pending',
         previousStatus: null,
       });
+      toast.success('Report reaberto!');
       return;
     }
 
@@ -179,6 +184,7 @@ export function HomePage({ user, onLogout }) {
       ...report,
       status: targetStatus,
     });
+    toast.success(`Status alterado para ${label}`);
   };
 
   const handleOpenChat = (id) => {
@@ -219,6 +225,7 @@ export function HomePage({ user, onLogout }) {
 
     addChatMessage(chatReportId, chatMessage.trim());
     setChatMessage('');
+    toast.success('Mensagem enviada!');
   };
 
   const handleHelpFormSubmit = () => {
@@ -240,6 +247,14 @@ export function HomePage({ user, onLogout }) {
     setHelpFormData({ name: '', phone: '', message: '' });
     setHelpErrors({});
     toast.success('Sua oferta de ajuda foi registrada!');
+  };
+
+  const handleToggleParticipation = (id, type) => {
+    const report = reports.find((r) => r.id === id);
+    const already = report?.myParticipation?.[type];
+    const label = type === 'participating' ? 'participação' : 'ajuda';
+    toggleParticipation(id, type);
+    toast.success(already ? `Você cancelou sua ${label}` : `Sua ${label} foi registrada!`);
   };
 
   const handleDelete = (id) => {
@@ -316,7 +331,7 @@ export function HomePage({ user, onLogout }) {
                                           onOpenChat={() => handleOpenChat(report.id)}
                                           onOpenHelpForm={() => handleOpenHelpForm(report.id)}
                                           onStatusChange={(status) => handleStatusChange(report, status)}
-                                          onToggleParticipation={(id, type) => toggleParticipation(id, type)}
+                                          onToggleParticipation={handleToggleParticipation}
                                           showActions={activeTab === 'myReports'}
                                           showOwnerActions={activeTab === 'home'}
                                         />

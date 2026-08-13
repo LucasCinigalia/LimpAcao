@@ -321,9 +321,30 @@ app.post('/api/relatorios/:id/chat', async (req, res) => {
   }
 });
 
+// ============================================================
+// Frontend estático (produção) — o Express serve o build do Vite
+// ============================================================
+const distPath = path.resolve(__dirname, '..', 'dist');
+app.use(express.static(distPath));
+
+// Fallback SPA: qualquer rota que não seja /api serve o index.html
+app.get(/^\/(?!api\/).*/, (req, res, next) => {
+  res.sendFile(path.join(distPath, 'index.html'), (err) => {
+    if (err) next();
+  });
+});
+
 const ensureSchema = async () => {
   const schemaPath = path.resolve(__dirname, 'mysql-schema.sql');
-  const schemaSql = await fs.readFile(schemaPath, 'utf-8');
+  let schemaSql = await fs.readFile(schemaPath, 'utf-8');
+
+  // Remove linhas de CREATE DATABASE / USE — o banco já existe (local ou Railway),
+  // e o nome pode ser diferente (ex: Railway injeta MYSQLDATABASE com nome próprio).
+  schemaSql = schemaSql
+    .split('\n')
+    .filter((line) => !/^\s*(CREATE DATABASE|USE\s)/i.test(line))
+    .join('\n');
+
   await pool.query(schemaSql);
   console.log('Schema MySQL verificado/aplicado');
   try {

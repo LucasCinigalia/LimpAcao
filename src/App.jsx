@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { HomePage, LoginPage } from './pages';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { HomePage, LoginPage, LandingPage } from './pages';
 import '../global.css';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authView, setAuthView] = useState(null); // null = landing, 'login' | 'register' = LoginPage
 
   useEffect(() => {
     const stored = localStorage.getItem('limpaocao_currentUser');
@@ -20,11 +23,20 @@ function App() {
 
   const handleLogin = (userData) => {
     setUser(userData);
+    setAuthView(null);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('limpaocao_currentUser');
     setUser(null);
+  };
+
+  const handleLoginClick = (view) => {
+    setAuthView(view);
+  };
+
+  const handleBackToLanding = () => {
+    setAuthView(null);
   };
 
   if (loading) {
@@ -35,11 +47,23 @@ function App() {
     );
   }
 
+  let content;
   if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
+    if (authView) {
+      content = <LoginPage onLogin={handleLogin} initialMode={authView} onBack={handleBackToLanding} />;
+    } else {
+      content = <LandingPage onLoginClick={handleLoginClick} />;
+    }
+  } else {
+    content = <HomePage user={user} onLogout={handleLogout} />;
   }
 
-  return <HomePage user={user} onLogout={handleLogout} />;
+  return (
+    <>
+      {content}
+      <ToastContainer position="bottom-right" autoClose={3000} theme="light" />
+    </>
+  );
 }
 
 export default App;

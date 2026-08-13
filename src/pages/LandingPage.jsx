@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button } from '../atoms';
 
-export function LandingPage() {
+export function LandingPage({ onLoginClick }) {
   const images = [
-    // Mutirão / coleta de lixo - Busca orientada no Unsplash
-    'https://source.unsplash.com/1400x900/?trash,cleanup,volunteers',
-    'https://source.unsplash.com/1400x900/?beach,cleanup,trash',
-    'https://source.unsplash.com/1400x900/?community,cleanup,volunteers',
-    'https://source.unsplash.com/1400x900/?recycling,cleanup'
+    // Pessoas juntas limpando lixo em mutirões — fotos diretas do Unsplash
+    'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=700&h=450&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=700&h=450&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=700&h=450&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1610093674388-cee0337f2684?w=700&h=450&fit=crop&q=80',
   ];
 
   const placeholders = [
@@ -18,7 +18,39 @@ export function LandingPage() {
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-slate-50">
+    <>
+      {/* Header público — visível apenas para visitantes não logados */}
+      {onLoginClick && (
+        <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+            <div className="flex items-center gap-2">
+              <div className="bg-gradient-to-br from-emerald-500 to-green-600 text-white p-2 rounded-xl shadow-md">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6l-8-4z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+              </div>
+              <span className="text-xl font-bold text-slate-900">LimpAção</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => onLoginClick('login')}
+                className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Entrar
+              </button>
+              <button
+                onClick={() => onLoginClick('register')}
+                className="rounded-full px-4 py-2 text-sm font-medium bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm transition-colors"
+              >
+                Cadastre-se
+              </button>
+            </div>
+          </div>
+        </header>
+      )}
+
+      <section className="py-16 bg-gradient-to-b from-white to-slate-50">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div>
@@ -29,7 +61,7 @@ export function LandingPage() {
               Conheça os projetos e ações que fazemos para recolher resíduos, conscientizar a população e revitalizar nossas praias e áreas verdes.
             </p>
             <div className="flex gap-4">
-              <Button variant="primary" size="lg">Participe de um mutirão</Button>
+              <Button variant="primary" size="lg" onClick={() => onLoginClick && onLoginClick('register')}>Participe de um mutirão</Button>
               <Button variant="secondary" size="lg">Saiba mais</Button>
             </div>
           </div>
@@ -70,6 +102,7 @@ export function LandingPage() {
         </div>
       </div>
     </section>
+    </>
   );
 }
 
